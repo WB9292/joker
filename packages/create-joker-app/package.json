@@ -1,0 +1,23 @@
+{
+  "name": "create-joker-app",
+  "version": "1.0.0",
+  "description": "ssr轮子",
+  "bin": {
+    "create-joker-app": "./bin/create-joker-app.js"
+  },
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "rimraf dist && tsc"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "inquirer": "^8.2.4"
+  },
+  "devDependencies": {
+    "@types/inquirer": "^8.2.1"
+  }
+}

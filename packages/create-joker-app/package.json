@@ -5,6 +5,9 @@
   "bin": {
     "create-joker-app": "./bin/create-joker-app.js"
   },
+  "engines": {
+    "node": ">=12.2.0"
+  },
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
@@ -15,7 +18,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "inquirer": "^8.2.4"
+    "inquirer": "^8.2.4",
+    "picocolors": "^1.0.0"
   },
   "devDependencies": {
     "@rollup/plugin-typescript": "^8.3.2",

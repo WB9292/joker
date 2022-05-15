@@ -20,7 +20,8 @@ export default (commandLineArgs) => {
       format: 'cjs',
       exports: 'named',
       sourcemap: idDev
-    }
+    },
+    plugins: [typescript()]
   }
 
   return config

@@ -41,10 +41,12 @@ importers:
       '@rollup/plugin-typescript': ^8.3.2
       '@types/inquirer': ^8.2.1
       inquirer: ^8.2.4
+      picocolors: ^1.0.0
       rollup: ^2.73.0
       tslib: ^2.4.0
     dependencies:
       inquirer: 8.2.4
+      picocolors: 1.0.0
     devDependencies:
       '@rollup/plugin-typescript': 8.3.2_rollup@2.73.0+tslib@2.4.0
       '@types/inquirer': 8.2.1
@@ -3142,7 +3144,6 @@ packages:
 
   /picocolors/1.0.0:
     resolution: {integrity: sha512-1fygroTLlHu66zi26VoTDv8yRgm0Fccecssto+MhsZ0D/DGW2sm8E8AjW7NU5VVTRt5GxbeZ5qBuJr+HyLYkjQ==}
-    dev: true
 
   /picomatch/2.3.1:
     resolution: {integrity: sha512-JU3teHTNjmE2VCGFzuY8EXzCDVwEqB2a8fsIvwaStHhAWJEeVd1o1QD80CU6+ZdEXXSLbSsuLwJjkCBWqRQUVA==}

@@ -40,11 +40,13 @@ importers:
     specifiers:
       '@rollup/plugin-typescript': ^8.3.2
       '@types/inquirer': ^8.2.1
+      cac: ^6.7.12
       inquirer: ^8.2.4
       picocolors: ^1.0.0
       rollup: ^2.73.0
       tslib: ^2.4.0
     dependencies:
+      cac: 6.7.12
       inquirer: 8.2.4
       picocolors: 1.0.0
     devDependencies:
@@ -1225,6 +1227,11 @@ packages:
     dependencies:
       base64-js: 1.5.1
       ieee754: 1.2.1
+    dev: false
+
+  /cac/6.7.12:
+    resolution: {integrity: sha512-rM7E2ygtMkJqD9c7WnFU6fruFcN3xe4FM5yUmgxhZzIKJk4uHl9U/fhwdajGFQbQuv43FAUo1Fe8gX/oIKDeSA==}
+    engines: {node: '>=8'}
     dev: false
 
   /call-bind/1.0.2:

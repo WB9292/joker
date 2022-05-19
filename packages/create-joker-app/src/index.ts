@@ -2,29 +2,17 @@ import path from 'path'
 import process from 'process'
 import fs from 'fs'
 import fsPromises from 'fs/promises'
-import inquirer from 'inquirer'
-import { error } from './logger'
 
-interface CreateOptions {
-  // 项目名称
-  projectName: string
-  // 是否使用 typescript
-  ts?: boolean
-  // 是否使用 eslint
-  eslint?: boolean
-  // 是否使用 prettier
-  prettier?: boolean
-  // 当前工作目录
-  cwd?: string
-  // 包管理器
-  packageManager?: string
-  // 是否强制删除已存在的目录
-  force?: boolean
-  // 如果已存在，是否合并
-  merge?: boolean
-  // 是否初始化 git
-  git?: boolean
-}
+import inquirer from 'inquirer'
+import { execa } from 'execa'
+
+import { error } from './logger'
+import type { CreateOptions, Plugin, PluginReturnFn } from './types'
+import { getFileAndDirName } from './utils'
+import tsPlugin from './tsPlugin'
+import eslintPlugin from './eslintPlugin'
+
+const { __dirname } = getFileAndDirName(import.meta.url)
 
 export async function create(options: CreateOptions) {
   const { projectName, force, merge } = options
@@ -41,13 +29,14 @@ export async function create(options: CreateOptions) {
     if (force) {
       await removeExist()
     } else if (merge === false) {
-      error(`${projectName}目录已存在`)
+      error(`${projectPath}目录已存在`)
       return
     } else if (merge !== true) {
       const { action } = await inquirer.prompt([
         {
           name: 'action',
           type: 'list',
+          message: `目录${projectPath}已存在，请选择下一步的动作`,
           choices: [
             {
               name: '覆盖',
@@ -73,13 +62,11 @@ export async function create(options: CreateOptions) {
     }
   }
 
-  writeTemplateToProject(projectPath, options)
+  return writeTemplateToProject(projectPath, options)
 }
 
-function writeTemplateToProject(
-  projectPath: string,
-  { projectName, ts, eslint, prettier }: CreateOptions
-) {
+async function writeTemplateToProject(projectPath: string, createOptions: CreateOptions) {
+  const { projectName, ts, eslint, prettier, packageManager } = createOptions
   const packageTemplatePath = path.resolve(__dirname, '../template/package.template.json')
   const packageConfig = JSON.parse(fs.readFileSync(packageTemplatePath, 'utf-8'))
   const createRootDir = async () => {
@@ -96,45 +83,18 @@ function writeTemplateToProject(
 
   packageConfig.name = projectName
 
+  const plugins: Array<Plugin> = []
+
   if (ts || eslint || prettier) {
     packageConfig.devDependencies = packageConfig.devDependencies || {}
   }
 
   if (ts) {
-    const tsconfigTemplatePath = path.resolve(
-      __dirname,
-      '../template/tsconfig.template.json'
-    )
-    const writeTsconfig = () => {
-      const outputPath = path.resolve(projectPath, './tsconfig.json')
-      fs.copyFileSync(tsconfigTemplatePath, outputPath)
-    }
-
-    serialRun.push(writeTsconfig)
-
-    packageConfig.devDependencies = {
-      ...packageConfig.devDependencies,
-      typescript: '^4.6.4'
-    }
+    plugins.push(tsPlugin)
   }
 
   if (eslint) {
-    packageConfig.devDependencies = {
-      ...packageConfig.devDependencies,
-      eslint: '^8.15.0',
-      'eslint-define-config': '^1.4.0',
-      'eslint-plugin-import': '^2.26.0',
-      'eslint-plugin-node': '^11.1.0',
-      'eslint-plugin-prettier': '^4.0.0'
-    }
-
-    if (ts) {
-      packageConfig.devDependencies = {
-        ...packageConfig.devDependencies,
-        '@typescript-eslint/eslint-plugin': '^5.23.0',
-        '@typescript-eslint/parser': '^5.23.0'
-      }
-    }
+    plugins.push(eslintPlugin)
   }
 
   packageConfig.devDependencies = Object.keys(packageConfig.devDependencies)
@@ -147,5 +107,15 @@ function writeTemplateToProject(
       {}
     )
 
+  const pluginsResult = plugins
+    .map((plugin) => plugin(projectPath, packageConfig, createOptions))
+    .filter(Boolean) as Array<PluginReturnFn>
+
+  serialRun.push(...pluginsResult)
+
   serialRun.forEach(async (fn) => await fn())
+
+  await execa(packageManager || 'npm', ['install'], {
+    cwd: projectPath
+  })
 }

@@ -1,7 +1,11 @@
 import inquirer from 'inquirer'
-import { create } from '.'
 import cac from 'cac'
 
+import { createRequire } from './utils'
+
+import { create } from '.'
+
+const require = createRequire()
 const cli = cac('create-joker-app')
 
 cli
@@ -53,6 +57,6 @@ cli
   })
 
 cli.help()
-cli.version(require('../package.json').version)
+cli.version(require('./package.json').version)
 
 cli.parse()

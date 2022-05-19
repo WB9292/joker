@@ -89,7 +89,13 @@ module.exports = defineConfig({
     '@typescript-eslint/consistent-type-imports': [
       'error',
       { prefer: 'type-imports' }
-    ]
+    ],
+    
+    // Import
+    'import/first': 'error',
+    'import/newline-after-import': 'error',
+    'import/no-duplicates': 'error',
+    'import/order': ['error', { 'newlines-between': 'always' }]
   },
   overrides: [
     {

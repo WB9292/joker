@@ -2,14 +2,15 @@
   "name": "create-joker-app",
   "version": "1.0.0",
   "description": "ssr轮子",
+  "type": "module",
   "bin": {
     "create-joker-app": "./bin/create-joker-app.js"
   },
   "engines": {
-    "node": ">=12.2.0"
+    "node": ">=14.16"
   },
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "exports": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "scripts": {
     "watch": "rimraf dist && rollup -c -w",
     "build": "rimraf dist && rollup -c"
@@ -19,11 +20,14 @@
   "license": "ISC",
   "dependencies": {
     "cac": "^6.7.12",
+    "ejs": "^3.1.8",
+    "execa": "^6.1.0",
     "inquirer": "^8.2.4",
     "picocolors": "^1.0.0"
   },
   "devDependencies": {
     "@rollup/plugin-typescript": "^8.3.2",
+    "@types/ejs": "^3.1.1",
     "@types/inquirer": "^8.2.1",
     "rollup": "^2.73.0",
     "tslib": "^2.4.0"

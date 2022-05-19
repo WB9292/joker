@@ -1,5 +1,9 @@
-import typescript from '@rollup/plugin-typescript'
 import path from 'path'
+import { fileURLToPath } from 'url'
+
+import typescript from '@rollup/plugin-typescript'
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
 export default (commandLineArgs) => {
   const idDev = commandLineArgs.watch
@@ -16,8 +20,8 @@ export default (commandLineArgs) => {
     output: {
       dir: path.resolve(__dirname, 'dist'),
       entryFileNames: '[name].js',
-      chunkFileNames: 'chunks/dep-[hash].js',
-      format: 'cjs',
+      // chunkFileNames: 'chunks/dep-[hash].js',
+      format: 'esm',
       exports: 'named',
       sourcemap: idDev
     },

@@ -4,9 +4,7 @@ import fs from 'fs'
 import ejs from 'ejs'
 
 import type { Plugin } from './types'
-import { getFileAndDirName } from './utils'
-
-const { __dirname } = getFileAndDirName(import.meta.url)
+import { findRoot } from './utils'
 
 const eslintPlugin: Plugin = (targetProjectPath, packageConfig, { eslint, ts }) => {
   if (eslint) {
@@ -28,7 +26,7 @@ const eslintPlugin: Plugin = (targetProjectPath, packageConfig, { eslint, ts }) 
     }
 
     return () => {
-      const eslintTemplatePath = path.resolve(__dirname, '../template/eslint.template.js')
+      const eslintTemplatePath = path.resolve(findRoot(), './template/eslint.template.js')
       const eslintContent = fs.readFileSync(eslintTemplatePath, 'utf-8')
       const result = ejs.render(eslintContent, {
         options: {

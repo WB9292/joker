@@ -2,15 +2,13 @@ import path from 'path'
 import fs from 'fs'
 
 import type { Plugin } from './types'
-import { getFileAndDirName } from './utils'
-
-const { __dirname } = getFileAndDirName(import.meta.url)
+import { findRoot } from './utils'
 
 const tsPlugin: Plugin = function (targetProjectPath, packageConfig, { ts }) {
   if (ts) {
     const tsconfigTemplatePath = path.resolve(
-      __dirname,
-      '../template/tsconfig.template.json'
+      findRoot(),
+      './template/tsconfig.template.json'
     )
     packageConfig.devDependencies = {
       ...packageConfig.devDependencies,

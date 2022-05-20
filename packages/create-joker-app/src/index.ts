@@ -8,11 +8,9 @@ import { execa } from 'execa'
 
 import { error } from './logger'
 import type { CreateOptions, Plugin, PluginReturnFn } from './types'
-import { getFileAndDirName } from './utils'
+import { findRoot } from './utils'
 import tsPlugin from './tsPlugin'
 import eslintPlugin from './eslintPlugin'
-
-const { __dirname } = getFileAndDirName(import.meta.url)
 
 export async function create(options: CreateOptions) {
   const { projectName, force, merge } = options
@@ -67,7 +65,7 @@ export async function create(options: CreateOptions) {
 
 async function writeTemplateToProject(projectPath: string, createOptions: CreateOptions) {
   const { projectName, ts, eslint, prettier } = createOptions
-  const packageTemplatePath = path.resolve(__dirname, '../template/package.template.json')
+  const packageTemplatePath = path.resolve(findRoot(), './template/package.template.json')
   const packageConfig = JSON.parse(fs.readFileSync(packageTemplatePath, 'utf-8'))
   const createRootDir = async () => {
     if (fs.existsSync(projectPath)) {

@@ -6,12 +6,12 @@ import fsPromises from 'fs/promises'
 import inquirer from 'inquirer'
 import { execa } from 'execa'
 
-import { error } from './logger'
+import { error, warn, info } from './logger'
 import type { CreateOptions, Plugin, PluginReturnFn } from './types'
 import { findRoot } from './utils'
 import tsPlugin from './tsPlugin'
 import eslintPlugin from './eslintPlugin'
-import { hasPnpm, hasYarn } from './env'
+import { hasGit, hasPnpm, hasYarn } from './env'
 
 export async function create(options: CreateOptions) {
   const { projectName, force, merge } = options
@@ -108,7 +108,14 @@ async function writeTemplateToProject(projectPath: string, createOptions: Create
     return resultPromise.then(() => Promise.resolve(fn()))
   }, Promise.resolve())
 
+  info('')
+  info('😁 项目创建成功，开始安装依赖')
+
   await execInstall(projectPath, createOptions)
+
+  info('😁 依赖已成功安装完成')
+
+  await initGit(projectPath, createOptions)
 }
 
 function formatPackageConfig(packageConfig: any) {
@@ -158,4 +165,32 @@ async function execInstall(targetProjectPath: string, { packageManager }: Create
     cwd: targetProjectPath,
     stdio: 'inherit'
   })
+}
+
+async function initGit(targetProjectPath: string, { git }: CreateOptions) {
+  if (!hasGit() || git === false || git === 'false') {
+    return
+  }
+
+  await execa('git', ['init'], {
+    cwd: targetProjectPath
+  })
+  await execa('git', ['add', '-A'], {
+    cwd: targetProjectPath
+  })
+
+  info('')
+  info('😁 git初始化成功')
+
+  const msg = typeof git === 'string' ? git : 'init'
+
+  try {
+    await execa('git', ['commit', '-m', msg, '--no-verify'], {
+      cwd: targetProjectPath
+    })
+
+    info('😁 git commit 成功')
+  } catch (e) {
+    warn('😭 git commit 失败')
+  }
 }

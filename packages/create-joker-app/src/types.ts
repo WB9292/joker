@@ -16,7 +16,7 @@ export interface CreateOptions {
   // 如果已存在，是否合并
   merge?: boolean
   // 是否初始化 git
-  git?: boolean
+  git?: boolean | string
 }
 
 export type PluginReturnFn = () => Promise<void> | void

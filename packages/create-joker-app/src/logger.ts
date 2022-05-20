@@ -12,7 +12,8 @@ function output(type: LogType, msg: string) {
       ? colors.red(prefix)
       : colors.yellow(prefix)
   const method = type === 'info' ? 'log' : type
-  console[method](`${colors.dim(new Date().toLocaleTimeString())} ${tag} ${msg}`)
+  msg = msg ? `${colors.dim(new Date().toLocaleTimeString())} ${tag} ${msg}` : ''
+  console[method](msg)
 }
 
 export function warn(msg: string) {

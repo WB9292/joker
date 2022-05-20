@@ -11,6 +11,7 @@ import type { CreateOptions, Plugin, PluginReturnFn } from './types'
 import { findRoot } from './utils'
 import tsPlugin from './tsPlugin'
 import eslintPlugin from './eslintPlugin'
+import { hasPnpm, hasYarn } from './env'
 
 export async function create(options: CreateOptions) {
   const { projectName, force, merge } = options
@@ -103,7 +104,9 @@ async function writeTemplateToProject(projectPath: string, createOptions: Create
 
   serialRun.push(...pluginsResult)
 
-  serialRun.forEach(async (fn) => await fn())
+  await serialRun.reduce((resultPromise, fn) => {
+    return resultPromise.then(() => Promise.resolve(fn()))
+  }, Promise.resolve())
 
   await execInstall(projectPath, createOptions)
 }
@@ -120,8 +123,39 @@ function formatPackageConfig(packageConfig: any) {
     )
 }
 
+const PACKAGE_MANAGER_CONFIG: Record<
+  string,
+  {
+    install: Array<string>
+    add: Array<string>
+    upgrade: Array<string>
+    remove: Array<string>
+  }
+> = {
+  npm: {
+    install: ['install', '--loglevel', 'error'],
+    add: ['install', '--loglevel', 'error'],
+    upgrade: ['update', '--loglevel', 'error'],
+    remove: ['uninstall', '--loglevel', 'error']
+  },
+  pnpm: {
+    install: ['install', '--reporter', 'silent', '--shamefully-hoist'],
+    add: ['install', '--reporter', 'silent', '--shamefully-hoist'],
+    upgrade: ['update', '--reporter', 'silent'],
+    remove: ['uninstall', '--reporter', 'silent']
+  },
+  yarn: {
+    install: [],
+    add: ['add'],
+    upgrade: ['upgrade'],
+    remove: ['remove']
+  }
+}
+
 async function execInstall(targetProjectPath: string, { packageManager }: CreateOptions) {
-  await execa(packageManager || 'npm', ['install'], {
-    cwd: targetProjectPath
+  const pm = packageManager || (hasYarn() ? 'yarn' : hasPnpm() ? 'pnpm' : 'npm')
+  await execa(pm, [...PACKAGE_MANAGER_CONFIG[pm].install], {
+    cwd: targetProjectPath,
+    stdio: 'inherit'
   })
 }

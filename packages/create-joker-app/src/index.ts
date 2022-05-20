@@ -66,7 +66,7 @@ export async function create(options: CreateOptions) {
 }
 
 async function writeTemplateToProject(projectPath: string, createOptions: CreateOptions) {
-  const { projectName, ts, eslint, prettier, packageManager } = createOptions
+  const { projectName, ts, eslint, prettier } = createOptions
   const packageTemplatePath = path.resolve(__dirname, '../template/package.template.json')
   const packageConfig = JSON.parse(fs.readFileSync(packageTemplatePath, 'utf-8'))
   const createRootDir = async () => {
@@ -97,15 +97,7 @@ async function writeTemplateToProject(projectPath: string, createOptions: Create
     plugins.push(eslintPlugin)
   }
 
-  packageConfig.devDependencies = Object.keys(packageConfig.devDependencies)
-    .sort()
-    .reduce(
-      (result, key) => ({
-        ...result,
-        [key]: packageConfig.devDependencies[key]
-      }),
-      {}
-    )
+  formatPackageConfig(packageConfig)
 
   const pluginsResult = plugins
     .map((plugin) => plugin(projectPath, packageConfig, createOptions))
@@ -115,7 +107,23 @@ async function writeTemplateToProject(projectPath: string, createOptions: Create
 
   serialRun.forEach(async (fn) => await fn())
 
+  await execInstall(projectPath, createOptions)
+}
+
+function formatPackageConfig(packageConfig: any) {
+  packageConfig.devDependencies = Object.keys(packageConfig.devDependencies)
+    .sort()
+    .reduce(
+      (result, key) => ({
+        ...result,
+        [key]: packageConfig.devDependencies[key]
+      }),
+      {}
+    )
+}
+
+async function execInstall(targetProjectPath: string, { packageManager }: CreateOptions) {
   await execa(packageManager || 'npm', ['install'], {
-    cwd: projectPath
+    cwd: targetProjectPath
   })
 }

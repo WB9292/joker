@@ -20,7 +20,7 @@ export default (commandLineArgs) => {
     output: {
       dir: path.resolve(__dirname, 'dist'),
       entryFileNames: '[name].js',
-      // chunkFileNames: 'chunks/dep-[hash].js',
+      chunkFileNames: 'chunks/dep-[hash].js',
       format: 'esm',
       exports: 'named',
       sourcemap: idDev

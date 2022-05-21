@@ -1,0 +1,21 @@
+{
+  "compilerOptions": {
+    "types": ["node", "jest"],
+    "target": "ES2019",
+    "moduleResolution": "node",
+    "module": "ESNext",
+    "lib": [
+      "ESNext"
+    ],
+    "strict": true,
+    "declaration": true,
+    "noImplicitOverride": true,
+    "noUnusedLocals": true,
+    "esModuleInterop": true,
+    "useUnknownInCatchVariables": false,
+    "experimentalDecorators": true,
+    "strictPropertyInitialization": false,
+    "emitDecoratorMetadata": true,
+    "allowSyntheticDefaultImports": true
+  }
+}

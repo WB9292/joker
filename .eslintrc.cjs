@@ -45,28 +45,8 @@ module.exports = defineConfig({
         tryExtensions: ['.ts', '.js', '.jsx', '.tsx', '.d.ts']
       }
     ],
-    'node/no-missing-require': [
-      'error',
-      {
-        // for try-catching yarn pnp
-        allowModules: ['pnpapi', 'vite'],
-        tryExtensions: ['.ts', '.js', '.jsx', '.tsx', '.d.ts']
-      }
-    ],
     'node/no-restricted-require': [
       'error'
-    ],
-    'node/no-extraneous-import': [
-      'error',
-      {
-        allowModules: ['vite', 'less', 'sass']
-      }
-    ],
-    'node/no-extraneous-require': [
-      'error',
-      {
-        allowModules: ['vite']
-      }
     ],
     'node/no-deprecated-api': 'off',
     'node/no-unpublished-import': 'off',
@@ -95,34 +75,12 @@ module.exports = defineConfig({
     'import/first': 'error',
     'import/newline-after-import': 'error',
     'import/no-duplicates': 'error',
-    'import/order': ['error', { 'newlines-between': 'always' }]
+    'import/order': ['error', { 'newlines-between': 'always' }],
+  
+    'node/no-extraneous-import': 'off',
+    'node/no-extraneous-require': 'off'
   },
   overrides: [
-    {
-      files: ['packages/vite/src/node/**'],
-      rules: {
-        'no-console': ['error']
-      }
-    },
-    {
-      files: ['packages/vite/types/**'],
-      rules: {
-        'node/no-extraneous-import': 'off'
-      }
-    },
-    {
-      files: ['packages/playground/**'],
-      rules: {
-        'node/no-extraneous-import': 'off',
-        'node/no-extraneous-require': 'off'
-      }
-    },
-    {
-      files: ['packages/create-vite/template-*/**'],
-      rules: {
-        'node/no-missing-import': 'off'
-      }
-    },
     {
       files: ['*.js'],
       rules: {

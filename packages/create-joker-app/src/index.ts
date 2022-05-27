@@ -17,8 +17,8 @@ export async function create(options: CreateOptions) {
   const { projectName, force, merge } = options
   const cwd = (options.cwd = path.resolve(process.cwd(), options.cwd || process.cwd()))
   const projectPath = path.resolve(cwd, projectName)
-  const removeExist = async () => {
-    await fsPromises.rm(projectPath, {
+  const removeExist = () => {
+    fs.rmSync(projectPath, {
       force: true,
       recursive: true
     })
@@ -26,7 +26,7 @@ export async function create(options: CreateOptions) {
 
   if (fs.existsSync(projectPath)) {
     if (force) {
-      await removeExist()
+      removeExist()
     } else if (merge === false) {
       error(`${projectPath}目录已存在`)
       return
@@ -56,7 +56,7 @@ export async function create(options: CreateOptions) {
       if (!action) {
         return
       } else if (action === 'overwrite') {
-        await removeExist()
+        removeExist()
       }
     }
   }

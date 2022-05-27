@@ -1,20 +1,5 @@
-import Module from 'module'
 import path from 'path'
-import { fileURLToPath } from 'url'
 import fs from 'fs'
-
-export function createRequire() {
-  return Module.createRequire(path.resolve(findRoot(), './package.json'))
-}
-
-export function getFileAndDirName(fileURL: string) {
-  const __filename = fileURLToPath(fileURL)
-  const __dirname = path.dirname(__filename)
-  return {
-    __filename,
-    __dirname
-  }
-}
 
 export const findRoot = (function () {
   let rootDir: string
@@ -39,8 +24,6 @@ export const findRoot = (function () {
     if (rootDir) {
       return rootDir
     }
-
-    const { __dirname } = getFileAndDirName(import.meta.url)
 
     return (rootDir = find(__dirname))
   }

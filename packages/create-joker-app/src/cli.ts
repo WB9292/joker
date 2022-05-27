@@ -1,11 +1,9 @@
-import inquirer from 'inquirer'
 import cac from 'cac'
-
-import { createRequire } from './utils'
+import prompts from 'prompts'
+import colors from 'picocolors'
 
 import { create } from '.'
 
-const require = createRequire()
 const cli = cac('create-joker-app')
 
 cli
@@ -16,47 +14,53 @@ cli
   .option('-f, --force', '[boolean] 如果项目存在，强制删除')
   .option('--merge', '[boolean] 如果项目存在，合并项目')
   .option('-g, --git', '[boolean] 初始化 git，并生成一个提交')
-  .action((projectName, options) => {
-    inquirer
-      .prompt(
+  .option('--ts', '[boolean] 是否使用Typescript')
+  .option('--eslint', '[boolean] 是否使用eslint')
+  .option('--prettier', '[boolean] 是否使用Prettier')
+  .action(async (projectName, options) => {
+    const { ts, eslint, prettier } = options
+    try {
+      const promptOptions = await prompts(
         [
           {
-            type: 'input',
+            type: projectName ? null : 'text',
             name: 'projectName',
             message: '请输入项目名称'
           },
           {
-            type: 'confirm',
+            type: typeof ts === 'boolean' ? null : 'confirm',
             name: 'ts',
-            message: '是否使用 Typescript',
-            default: true
+            message: '是否使用 Typescript'
           },
           {
-            type: 'confirm',
+            type: typeof eslint === 'boolean' ? null : 'confirm',
             name: 'eslint',
-            message: '是否使用 ESLint',
-            default: true
+            message: '是否使用 ESLint'
           },
           {
-            type: 'confirm',
+            type: typeof prettier === 'boolean' ? null : 'confirm',
             name: 'prettier',
-            message: '是否使用 Prettier',
-            default: true
+            message: '是否使用 Prettier'
           }
         ],
         {
-          projectName
+          onCancel: () => {
+            throw new Error(colors.red('✖') + ' 操作已取消')
+          }
         }
       )
-      .then((promptOptions) => {
-        create({
-          ...(promptOptions || {}),
-          ...(options || {})
-        })
+
+      create({
+        ...(promptOptions || {}),
+        ...(options || {})
       })
+    } catch (cancelled) {
+      console.log(cancelled.message)
+      return
+    }
   })
 
 cli.help()
-cli.version(require('./package.json').version)
+cli.version(require('../package.json').version)
 
 cli.parse()

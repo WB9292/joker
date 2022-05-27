@@ -4,7 +4,7 @@ import fs from 'fs'
 import fsPromises from 'fs/promises'
 
 import inquirer from 'inquirer'
-import { execa } from 'execa'
+import execa from 'execa'
 
 import { error, warn, info } from './logger'
 import type { CreateOptions, Plugin, PluginReturnFn } from './types'
@@ -15,7 +15,7 @@ import { hasGit, hasPnpm, hasYarn } from './env'
 
 export async function create(options: CreateOptions) {
   const { projectName, force, merge } = options
-  const cwd = (options.cwd = path.resolve(process.cwd(), options.cwd || process.cwd()))
+  const cwd = (options.cwd = path.resolve(process.cwd(), options.cwd || '.'))
   const projectPath = path.resolve(cwd, projectName)
   const removeExist = () => {
     fs.rmSync(projectPath, {
@@ -60,6 +60,8 @@ export async function create(options: CreateOptions) {
       }
     }
   }
+
+  info('😁 开始创建项目')
 
   return writeTemplateToProject(projectPath, options)
 }
@@ -108,7 +110,6 @@ async function writeTemplateToProject(projectPath: string, createOptions: Create
     return resultPromise.then(() => Promise.resolve(fn()))
   }, Promise.resolve())
 
-  info('')
   info('😁 项目创建成功，开始安装依赖')
 
   await execInstall(projectPath, createOptions)

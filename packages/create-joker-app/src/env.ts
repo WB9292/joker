@@ -1,4 +1,4 @@
-import { execaSync } from 'execa'
+import execa from 'execa'
 
 let _hasYarn: boolean | null = null
 
@@ -8,7 +8,7 @@ export function hasYarn() {
   }
 
   try {
-    execaSync('yarn', ['version'])
+    execa.sync('yarn', ['version'])
     return (_hasYarn = true)
   } catch (e) {
     return (_hasYarn = false)
@@ -23,7 +23,7 @@ export function hasPnpm() {
   }
 
   try {
-    execaSync('pnpm', ['version'])
+    execa.sync('pnpm', ['version'])
     return (_hasPnpm = true)
   } catch (e) {
     return (_hasPnpm = false)
@@ -38,7 +38,7 @@ export function hasGit() {
   }
 
   try {
-    execaSync('git', ['--version'])
+    execa.sync('git', ['--version'])
     return (_hasGit = true)
   } catch (e) {
     return (_hasGit = false)

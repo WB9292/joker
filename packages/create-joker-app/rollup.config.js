@@ -21,7 +21,7 @@ export default (commandLineArgs) => {
       dir: path.resolve(__dirname, 'dist'),
       entryFileNames: '[name].js',
       chunkFileNames: 'chunks/dep-[hash].js',
-      format: 'esm',
+      format: 'cjs',
       exports: 'named',
       sourcemap: idDev
     },

@@ -3,8 +3,9 @@ import process from 'process'
 import fs from 'fs'
 import fsPromises from 'fs/promises'
 
-import inquirer from 'inquirer'
+import prompts from 'prompts'
 import execa from 'execa'
+import colors from 'picocolors'
 
 import { error, warn, info } from './logger'
 import type { CreateOptions, Plugin, PluginReturnFn } from './types'
@@ -16,7 +17,7 @@ import { hasGit, hasPnpm, hasYarn } from './env'
 export async function create(options: CreateOptions) {
   const { projectName, force, merge } = options
   const cwd = (options.cwd = path.resolve(process.cwd(), options.cwd || '.'))
-  const projectPath = path.resolve(cwd, projectName)
+  const projectPath = path.resolve(cwd, projectName ?? '.')
   const removeExist = () => {
     fs.rmSync(projectPath, {
       force: true,
@@ -27,11 +28,13 @@ export async function create(options: CreateOptions) {
   if (fs.existsSync(projectPath)) {
     if (force) {
       removeExist()
+      info(`${projectPath}项目目录已存在，已直接强制删除`)
     } else if (merge === false) {
-      error(`${projectPath}目录已存在`)
+      // 如果明确设置不合并，但是文件夹又存在，则报错
+      error(`${projectPath}项目目录已存在，退出`)
       return
-    } else if (merge !== true) {
-      const { action } = await inquirer.prompt([
+    } else if (!merge) {
+      const { action } = await prompts.prompt([
         {
           name: 'action',
           type: 'list',
@@ -54,6 +57,7 @@ export async function create(options: CreateOptions) {
       ])
 
       if (!action) {
+        info(colors.red('✖') + ' 操作已取消')
         return
       } else if (action === 'overwrite') {
         removeExist()
@@ -67,7 +71,7 @@ export async function create(options: CreateOptions) {
 }
 
 async function writeTemplateToProject(projectPath: string, createOptions: CreateOptions) {
-  const { projectName, ts, eslint, prettier } = createOptions
+  const { projectName, ts, eslint } = createOptions
   const packageTemplatePath = path.resolve(findRoot(), './template/package.template.json')
   const packageConfig = JSON.parse(fs.readFileSync(packageTemplatePath, 'utf-8'))
   const createRootDir = async () => {
@@ -76,19 +80,15 @@ async function writeTemplateToProject(projectPath: string, createOptions: Create
     }
     await fsPromises.mkdir(projectPath)
   }
-  const writePackageJson = () => {
-    const outputPath = path.resolve(projectPath, './package.json')
-    fs.writeFileSync(outputPath, JSON.stringify(packageConfig, null, 2), 'utf-8')
+  const writeBaseFiles = () => {
+    const packageJSONFilePath = path.resolve(projectPath, './package.json')
+    fs.writeFileSync(packageJSONFilePath, JSON.stringify(packageConfig, null, 2), 'utf-8')
   }
-  const serialRun = [createRootDir, writePackageJson]
+  const serialRun = [createRootDir, writeBaseFiles]
 
-  packageConfig.name = projectName
+  packageConfig.name = projectName ?? path.basename(projectPath)
 
   const plugins: Array<Plugin> = []
-
-  if (ts || eslint || prettier) {
-    packageConfig.devDependencies = packageConfig.devDependencies || {}
-  }
 
   if (ts) {
     plugins.push(tsPlugin)
@@ -184,6 +184,10 @@ async function initGit(targetProjectPath: string, { git }: CreateOptions) {
   info('😁 git初始化成功')
 
   const msg = typeof git === 'string' ? git : 'init'
+
+  const gitIgnoreTemplatePath = path.resolve(findRoot(), './template/_gitignore')
+  const gitIgnoreFilePath = path.resolve(targetProjectPath, './.gitignore')
+  fs.writeFileSync(gitIgnoreFilePath, fs.readFileSync(gitIgnoreTemplatePath))
 
   try {
     await execa('git', ['commit', '-m', msg, '--no-verify'], {

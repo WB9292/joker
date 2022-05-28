@@ -52,7 +52,8 @@ cli
 
       create({
         ...(promptOptions || {}),
-        ...(options || {})
+        ...(options || {}),
+        projectName
       })
     } catch (cancelled) {
       console.log(cancelled.message)

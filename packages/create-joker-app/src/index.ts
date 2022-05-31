@@ -1,5 +1,4 @@
 import path from 'path'
-import process from 'process'
 import fs from 'fs'
 import fsPromises from 'fs/promises'
 
@@ -16,7 +15,7 @@ import { hasGit, hasPnpm, hasYarn } from './env'
 
 export async function create(options: CreateOptions) {
   const { projectName, force, merge } = options
-  const cwd = (options.cwd = path.resolve(process.cwd(), options.cwd || '.'))
+  const cwd = (options.cwd = path.resolve(options.cwd || '.'))
   const projectPath = path.resolve(cwd, projectName ?? '.')
   const removeExist = () => {
     fs.rmSync(projectPath, {
